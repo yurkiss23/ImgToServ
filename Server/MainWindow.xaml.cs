@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Server.Entities;
+using Server.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +22,19 @@ namespace Server
     /// </summary>
     public partial class MainWindow : Window
     {
+        private EFContext _context;
         public MainWindow()
         {
             InitializeComponent();
+            _context = new EFContext();
+
+            List<ImageModel> l = new List<ImageModel>(_context.Images.Select(i => new ImageModel()
+            {
+                Id = i.Id,
+                Name = i.Name,
+                Base64 = i.Base64
+            }).ToList());
+            dg.ItemsSource = l;
         }
     }
 }
