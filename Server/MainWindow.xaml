@@ -5,13 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Server"
         mc:Ignorable="d"
-        Title="MainWindow" Height="210" Width="300" Loaded="Window_Loaded">
+        Title="MainWindow" Height="200" Width="300" Loaded="Window_Loaded">
     <StackPanel>
-        <!--<Button x:Name="btnAddImg" Content="Add image" Width="70" Height="30" Margin="20" Click="BtnAddImg_Click"/>-->
-        <Border Width="122" Height="92" Background="Gray" Margin="20">
+        <Border Width="122" Height="92" Background="Gray" Margin="0,20,0,0">
             <Image x:Name="imgAddImg" Width="120" Height="90" Stretch="Uniform"/>
         </Border>
-        <TextBox x:Name="txtNameImg" Height="30" HorizontalContentAlignment="Center"/>
-        <!--<Button x:Name="btnSendImg" Content="Send image" Width="90" Height="30" Margin="20" Click="BtnSendImg_Click" />-->
+        <TextBox x:Name="txtNameImg" Height="30" HorizontalContentAlignment="Center" Margin="10"/>
     </StackPanel>
 </Window>

@@ -20,7 +20,6 @@ namespace ImgSend.Helpers
                 {
                     img.Save(ms, img.RawFormat);
                     byte[] imgBytes = ms.ToArray();
-                    //string base64 = Convert.ToBase64String(imgBytes);
                     return Convert.ToBase64String(imgBytes);
                 }
             }

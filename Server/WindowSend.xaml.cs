@@ -47,7 +47,6 @@ namespace Server
                 if (ofd.ShowDialog() == true)
                 {
                     NameImg = ofd.SafeFileName;
-                    //AddImg = System.Drawing.Image.FromFile(ofd.FileName);
                     ImgBase64string = ImageHelper.ImgToBase64(System.Drawing.Image.FromFile(ofd.FileName));
                     imgAddImg.Source = new BitmapImage(new Uri(ofd.FileName));
                     txtNameImg.Text = NameImg;
@@ -85,7 +84,6 @@ namespace Server
                 };
                 
                 var strJson = JsonConvert.SerializeObject(img);
-                MessageBox.Show(strJson.Length.ToString());
 
                 IPAddress ip = IPAddress.Parse("127.0.0.1");
                 IPEndPoint ep = new IPEndPoint(ip, 1098);
@@ -96,12 +94,6 @@ namespace Server
                     if (s.Connected)
                     {
                         s.Send(Encoding.UTF8.GetBytes(strJson));
-                        //byte[] buffer = new byte[1024];
-                        //int l;
-                        //do
-                        //{
-                        //    l = s.Receive(buffer);
-                        //} while (l > 0);
                     }
                 }
                 catch (Exception ex)
@@ -110,7 +102,7 @@ namespace Server
                     this.Close();
                 }
                 MessageBox.Show("sending to server complite");
-                //scope.Complete();
+                scope.Complete();
             }
             MessageBox.Show("transaction complite");
             this.Close();

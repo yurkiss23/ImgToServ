@@ -28,26 +28,14 @@ namespace Server
     /// </summary>
     public partial class MainWindow : Window
     {
-        //private EFContext _context;
         public string EPoint { get; set; }
-        public string NameImg { get; set; }
         public string StrJson { get; set; }
-        public static string RecMessage { get; set; }
         public MainWindow()
         {
             InitializeComponent();
-            //_context = new EFContext();
 
             Task SrvStart = new Task(ServerStart);
             SrvStart.Start();
-
-            //List<ImageModel> l = new List<ImageModel>(_context.Images.Select(i => new ImageModel()
-            //{
-            //    Id = i.Id,
-            //    Name = i.Name,
-            //    Base64 = i.Base64
-            //}).ToList());
-            //dg.ItemsSource = l;
 
             Thread.Sleep(1000);
             this.Title = EPoint;
@@ -71,7 +59,6 @@ namespace Server
                     int bytesRec = ns.Receive(bytes);
                     data += Encoding.UTF8.GetString(bytes, 0, bytesRec);
                     StrJson = data;
-                    ns.Send(Encoding.UTF8.GetBytes($" sending {DateTime.Now}"));
                     ns.Shutdown(SocketShutdown.Both);
                     ns.Close();
                 }
@@ -89,21 +76,10 @@ namespace Server
 
             if (!string.IsNullOrEmpty(StrJson))
             {
-                MessageBox.Show("!!!");
                 var sendRes = JsonConvert.DeserializeObject<ImageModel>(StrJson);
-                MessageBox.Show(sendRes.Name);
 
                 imgAddImg.Source = ImageHelper.BitmapToImageSource(ImageHelper.Base64ToImg(sendRes.Base64));
                 txtNameImg.Text = sendRes.Name;
-                //using (TransactionScope scope = new TransactionScope())
-                //{
-                //    var sendRes = JsonConvert.DeserializeObject<ImageModel>(StrJson);
-                    
-                //    imgAddImg.Source = ImageHelper.BitmapToImageSource(ImageHelper.Base64ToImg(sendRes.Base64));
-                //    txtNameImg.Text = sendRes.Name;
-
-                //}
-                //txtNameImg.Text = NameImg;
             }
         }
     }
