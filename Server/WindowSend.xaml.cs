@@ -16,6 +16,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Drawing;
+using ImgSend.Helpers;
+using System.Transactions;
+using Newtonsoft.Json;
+using Server.Models;
 
 namespace Server
 {
@@ -26,6 +30,7 @@ namespace Server
     {
         private EFContext _context;
         public string NameImg { get; set; }
+        public string ImgBase64string { get; set; }
         public System.Drawing.Image AddImg { get; set; }
         public WindowSend()
         {
@@ -42,7 +47,8 @@ namespace Server
                 if (ofd.ShowDialog() == true)
                 {
                     NameImg = ofd.SafeFileName;
-                    AddImg = System.Drawing.Image.FromFile(ofd.FileName);
+                    //AddImg = System.Drawing.Image.FromFile(ofd.FileName);
+                    ImgBase64string = ImageHelper.ImgToBase64(System.Drawing.Image.FromFile(ofd.FileName));
                     imgAddImg.Source = new BitmapImage(new Uri(ofd.FileName));
                     txtNameImg.Text = NameImg;
                 }
@@ -55,28 +61,58 @@ namespace Server
 
         private void BtnSendImg_Click(object sender, RoutedEventArgs e)
         {
-            IPAddress ip = IPAddress.Parse("127.0.0.1");
-            IPEndPoint ep = new IPEndPoint(ip, 1098);
-            Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
-            try
+            using (TransactionScope scope = new TransactionScope())
             {
-                s.Connect(ep);
-                if (s.Connected)
+                try
                 {
-                    s.Send(Encoding.UTF8.GetBytes(txtNameImg.Text));
-                    byte[] buffer = new byte[1024];
-                    int l;
-                    do
+                    _context.Images.Add(new Images()
                     {
-                        l = s.Receive(buffer);
-                    } while (l > 0);
+                        Name = NameImg,
+                        Base64 = ImgBase64string
+                    });
+                    _context.SaveChanges();
+                    MessageBox.Show("addind to db complite");
                 }
+                catch
+                {
+                    throw new Exception("error db");
+                }
+
+                var img = new ImageModel
+                {
+                    Name = NameImg,
+                    Base64 = ImgBase64string
+                };
+                
+                var strJson = JsonConvert.SerializeObject(img);
+                MessageBox.Show(strJson.Length.ToString());
+
+                IPAddress ip = IPAddress.Parse("127.0.0.1");
+                IPEndPoint ep = new IPEndPoint(ip, 1098);
+                Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
+                try
+                {
+                    s.Connect(ep);
+                    if (s.Connected)
+                    {
+                        s.Send(Encoding.UTF8.GetBytes(strJson));
+                        //byte[] buffer = new byte[1024];
+                        //int l;
+                        //do
+                        //{
+                        //    l = s.Receive(buffer);
+                        //} while (l > 0);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    this.Close();
+                }
+                MessageBox.Show("sending to server complite");
+                //scope.Complete();
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-                this.Close();
-            }
+            MessageBox.Show("transaction complite");
             this.Close();
         }
     }

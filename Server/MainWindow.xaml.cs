@@ -1,4 +1,6 @@
-﻿using Server.Entities;
+﻿using ImgSend.Helpers;
+using Newtonsoft.Json;
+using Server.Entities;
 using Server.Models;
 using System;
 using System.Collections.Generic;
@@ -8,6 +10,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -28,6 +31,7 @@ namespace Server
         //private EFContext _context;
         public string EPoint { get; set; }
         public string NameImg { get; set; }
+        public string StrJson { get; set; }
         public static string RecMessage { get; set; }
         public MainWindow()
         {
@@ -63,10 +67,10 @@ namespace Server
                 {
                     Socket ns = s.Accept();
                     string data = null;
-                    byte[] bytes = new byte[1024];
+                    byte[] bytes = new byte[100000];
                     int bytesRec = ns.Receive(bytes);
                     data += Encoding.UTF8.GetString(bytes, 0, bytesRec);
-                    NameImg = data;
+                    StrJson = data;
                     ns.Send(Encoding.UTF8.GetBytes($" sending {DateTime.Now}"));
                     ns.Shutdown(SocketShutdown.Both);
                     ns.Close();
@@ -83,9 +87,23 @@ namespace Server
             WindowSend send = new WindowSend();
             send.ShowDialog();
 
-            if (!string.IsNullOrEmpty(NameImg))
+            if (!string.IsNullOrEmpty(StrJson))
             {
-                txtNameImg.Text = NameImg;
+                MessageBox.Show("!!!");
+                var sendRes = JsonConvert.DeserializeObject<ImageModel>(StrJson);
+                MessageBox.Show(sendRes.Name);
+
+                imgAddImg.Source = ImageHelper.BitmapToImageSource(ImageHelper.Base64ToImg(sendRes.Base64));
+                txtNameImg.Text = sendRes.Name;
+                //using (TransactionScope scope = new TransactionScope())
+                //{
+                //    var sendRes = JsonConvert.DeserializeObject<ImageModel>(StrJson);
+                    
+                //    imgAddImg.Source = ImageHelper.BitmapToImageSource(ImageHelper.Base64ToImg(sendRes.Base64));
+                //    txtNameImg.Text = sendRes.Name;
+
+                //}
+                //txtNameImg.Text = NameImg;
             }
         }
     }
